@@ -4,7 +4,7 @@ A Spring Boot service for transferring playlists between music streaming platfor
 
 ## Status
 
-This project is a work in progress. At present it exposes a single endpoint that exchanges a Spotify authorization code for an access token; the actual playlist-transfer logic and additional platform integrations are not yet implemented.
+This project is a work in progress. At present it exposes a single endpoint that exchanges a Spotify authorization code for an access token, storing it in the HTTP session; the actual playlist-transfer logic and additional platform integrations are not yet implemented. A service for fetching a user's Spotify playlists is in progress but not yet wired up to a controller endpoint.
 
 ## Tech stack
 

@@ -11,12 +11,16 @@ import com.transfer.playlist.music.clients.spotify.dto.GetAccessTokenRequest;
 import com.transfer.playlist.music.clients.spotify.dto.GetAccessTokenResponse;
 import com.transfer.playlist.music.clients.spotify.exception.SpotifyAuthException;
 
+import jakarta.servlet.http.HttpSession;
+
 @Service
 public class SpotifyAuthService {
 
     private final RestClient restClient;
     private final static String SPOTIFY_ACCOUNT_BASE_URL = "https://accounts.spotify.com/api";
+    public final static String SPOTIFY_ACCESS_TOKEN_SESSION_KEY = "spotify_access_token";
     private final static String TOKEN_URI = "/token";
+    
     private final String clientId;
     private final String clientSecret;
 
@@ -32,7 +36,7 @@ public class SpotifyAuthService {
         this.clientSecret = clientSecret;
     }
 
-    public GetAccessTokenResponse getSpotifyAccessToken(GetAccessTokenRequest request) {
+    public void getSpotifyAccessToken(GetAccessTokenRequest request, HttpSession session) {
         String code = request.code();
         
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
@@ -40,7 +44,7 @@ public class SpotifyAuthService {
         formData.add("redirect_uri", "https://google.com");
         formData.add("code", code);
 
-        return restClient.post()
+        GetAccessTokenResponse response = restClient.post()
             .uri(TOKEN_URI)
             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
             .headers(headers -> headers.setBasicAuth(
@@ -53,5 +57,7 @@ public class SpotifyAuthService {
                 throw new SpotifyAuthException(res.getStatusCode());
             })
             .body(GetAccessTokenResponse.class);
+
+        session.setAttribute(SPOTIFY_ACCESS_TOKEN_SESSION_KEY, response.accessToken());
     }
 }

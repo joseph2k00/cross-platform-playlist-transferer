@@ -4,7 +4,7 @@ A Spring Boot service for transferring playlists between music streaming platfor
 
 ## Status
 
-This project is a work in progress. At present it exposes a single endpoint that exchanges a Spotify authorization code for an access token; the actual playlist-transfer logic and additional platform integrations are not yet implemented.
+This project is a work in progress. At present it exposes a single endpoint that exchanges a Spotify authorization code for an access token, storing it in the HTTP session; the actual playlist-transfer logic and additional platform integrations are not yet implemented. A service for fetching a user's Spotify playlists is in progress but not yet wired up to a controller endpoint.
 
 ## Tech stack
 
@@ -46,7 +46,7 @@ The app starts on the default port (`8080`).
 
 ### `POST /spotify/get-access-token`
 
-Exchanges a Spotify authorization code for an access token.
+Exchanges a Spotify authorization code for an access token and stores it in the caller's HTTP session (`spotify_access_token`). The token itself is not returned in the response body — subsequent requests should reuse the session cookie.
 
 **Request body:**
 ```json
@@ -58,7 +58,7 @@ Exchanges a Spotify authorization code for an access token.
 **Response:**
 ```json
 {
-  "access_token": "..."
+  "status": "success"
 }
 ```
 
@@ -76,8 +76,9 @@ src/main/java/com/transfer/playlist/music/
 ├── MusicApplication.java
 └── clients/
     └── spotify/
-        ├── controller/   # REST endpoints
-        ├── service/      # Business logic / Spotify API calls
-        ├── dto/          # Request/response records
-        └── exception/    # Spotify-specific error handling
+        ├── controller/     # REST endpoints
+        ├── service/        # Business logic / Spotify API calls
+        ├── dto/             # Request/response records
+        │   └── ClientResponses/  # Raw Spotify API response shapes
+        └── exception/      # Spotify-specific error handling
 ```

@@ -1,14 +1,17 @@
 package com.transfer.playlist.music.clients.spotify.controller;
 
+import java.util.Map;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.transfer.playlist.music.clients.spotify.dto.GetAccessTokenRequest;
-import com.transfer.playlist.music.clients.spotify.dto.GetAccessTokenResponse;
 import com.transfer.playlist.music.clients.spotify.service.SpotifyAuthService;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 @RestController
@@ -24,9 +27,11 @@ public class SpotifyController {
     }
 
     @PostMapping("/get-access-token")
-    public GetAccessTokenResponse getAccessToken(
-        @Valid @RequestBody GetAccessTokenRequest request
+    public ResponseEntity<Map<String, String>> getAccessToken(
+        @Valid @RequestBody GetAccessTokenRequest request,
+        HttpSession session
     ) {
-        return authService.getSpotifyAccessToken(request);
+        authService.getSpotifyAccessToken(request, session);
+        return ResponseEntity.ok(Map.of("status", "success"));
     }
 }

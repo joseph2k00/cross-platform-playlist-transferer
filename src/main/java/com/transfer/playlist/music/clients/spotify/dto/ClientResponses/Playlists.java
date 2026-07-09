@@ -8,7 +8,6 @@ public record Playlists(
     @JsonProperty("id") String id,
     @JsonProperty("images") List<ImageObject> images,
     @JsonProperty("name") String name,
-    @JsonProperty("description") String description
-) {
-
-}
+    @JsonProperty("description") String description,
+    @JsonProperty("owner") Owner owner
+) {}

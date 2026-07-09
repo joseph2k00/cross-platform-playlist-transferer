@@ -18,7 +18,7 @@ public class SpotifyAuthService {
 
     private final RestClient restClient;
     private final static String SPOTIFY_ACCOUNT_BASE_URL = "https://accounts.spotify.com/api";
-    public final static String SPOTIFY_ACCESS_TOKEN_SESSION_KEY = "spotify_access_token";
+    public final static String SPOTIFY_READ_ACCESS_TOKEN_SESSION_KEY = "spotify_read_access_token";
     private final static String TOKEN_URI = "/token";
     
     private final String clientId;
@@ -58,6 +58,6 @@ public class SpotifyAuthService {
             })
             .body(GetAccessTokenResponse.class);
 
-        session.setAttribute(SPOTIFY_ACCESS_TOKEN_SESSION_KEY, response.accessToken());
+        session.setAttribute(SPOTIFY_READ_ACCESS_TOKEN_SESSION_KEY, response.accessToken());
     }
 }

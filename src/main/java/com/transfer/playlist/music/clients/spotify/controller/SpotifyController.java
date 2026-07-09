@@ -47,7 +47,7 @@ public class SpotifyController {
     public GetUserPlaylistsResponse getPlaylists(
         HttpSession session
     ) {
-        String token = (String) session.getAttribute(SpotifyAuthService.SPOTIFY_ACCESS_TOKEN_SESSION_KEY);
+        String token = (String) session.getAttribute(SpotifyAuthService.SPOTIFY_READ_ACCESS_TOKEN_SESSION_KEY);
         if (token == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not connected to Spotify");
         }

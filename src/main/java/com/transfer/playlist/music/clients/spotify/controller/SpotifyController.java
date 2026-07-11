@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.transfer.playlist.music.clients.spotify.dto.GetAccessTokenRequest;
-import com.transfer.playlist.music.clients.spotify.dto.GetUserPlaylistsResponse;
+import com.transfer.playlist.music.clients.common.dto.UserPlaylistDTO;
+import com.transfer.playlist.music.clients.spotify.dto.auth.GetAccessTokenRequest;
 import com.transfer.playlist.music.clients.spotify.service.SpotifyApiService;
 import com.transfer.playlist.music.clients.spotify.service.SpotifyAuthService;
 
@@ -44,7 +44,7 @@ public class SpotifyController {
     }
 
     @GetMapping("/playlists")
-    public GetUserPlaylistsResponse getPlaylists(
+    public UserPlaylistDTO getPlaylists(
         HttpSession session
     ) {
         String token = (String) session.getAttribute(SpotifyAuthService.SPOTIFY_ACCESS_TOKEN_SESSION_KEY);
@@ -53,5 +53,21 @@ public class SpotifyController {
         }
 
         return apiService.getUserPlaylists(token);
+    }
+
+    @PostMapping("/playlist/create")
+    public ResponseEntity<Map<String, String>> createPlaylist(
+        HttpSession session,
+        @Valid @RequestBody UserPlaylistDTO request
+    ) {
+        String token = (String) session.getAttribute(SpotifyAuthService.SPOTIFY_ACCESS_TOKEN_SESSION_KEY);
+        if (token == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not connected to Spotify");
+        }
+        apiService.createPlaylistAndAddSongs(
+            token,
+            request
+        );
+        return ResponseEntity.ok(Map.of("status", "success"));
     }
 }

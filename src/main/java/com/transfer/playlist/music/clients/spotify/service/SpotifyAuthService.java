@@ -7,8 +7,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
-import com.transfer.playlist.music.clients.spotify.dto.GetAccessTokenRequest;
-import com.transfer.playlist.music.clients.spotify.dto.GetAccessTokenResponse;
+import com.transfer.playlist.music.clients.spotify.dto.auth.GetAccessTokenRequest;
+import com.transfer.playlist.music.clients.spotify.dto.auth.GetAccessTokenResponse;
 import com.transfer.playlist.music.clients.spotify.exception.SpotifyAuthException;
 
 import jakarta.servlet.http.HttpSession;
@@ -54,10 +54,13 @@ public class SpotifyAuthService {
             .body(formData)
             .retrieve()
             .onStatus(status -> status.isError(), (req, res) -> {
-                throw new SpotifyAuthException(res.getStatusCode());
+                throw new SpotifyAuthException(res.getStatusText(), res.getStatusCode());
             })
             .body(GetAccessTokenResponse.class);
 
-        session.setAttribute(SPOTIFY_ACCESS_TOKEN_SESSION_KEY, response.accessToken());
+        session.setAttribute(
+            SPOTIFY_ACCESS_TOKEN_SESSION_KEY,
+            response.accessToken()
+        );
     }
 }

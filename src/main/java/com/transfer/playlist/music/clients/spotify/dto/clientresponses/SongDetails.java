@@ -1,4 +1,4 @@
-package com.transfer.playlist.music.clients.spotify.dto.ClientResponses;
+package com.transfer.playlist.music.clients.spotify.dto.clientresponses;
 
 import java.util.List;
 import java.util.Map;

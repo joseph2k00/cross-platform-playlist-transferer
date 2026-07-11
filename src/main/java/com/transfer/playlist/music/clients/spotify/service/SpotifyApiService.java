@@ -7,21 +7,21 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import com.transfer.playlist.music.clients.spotify.dto.ClientRequests.AddItemsToPlaylistRequest;
-import com.transfer.playlist.music.clients.spotify.dto.ClientRequests.CreatePlaylistRequest;
-import com.transfer.playlist.music.clients.spotify.dto.ClientResponses.SpotifyPlaylistsApiResponse;
-import com.transfer.playlist.music.clients.spotify.dto.ClientResponses.SpotifySearchTrackResponse;
-import com.transfer.playlist.music.clients.spotify.dto.ClientResponses.CreatePlaylist.SpotifyCreatePlaylistResponse;
+import com.transfer.playlist.music.clients.spotify.dto.clientrequests.AddItemsToPlaylistRequest;
+import com.transfer.playlist.music.clients.spotify.dto.clientrequests.CreatePlaylistRequest;
+import com.transfer.playlist.music.clients.spotify.dto.clientresponses.SpotifyPlaylistsApiResponse;
+import com.transfer.playlist.music.clients.spotify.dto.clientresponses.SpotifySearchTrackResponse;
+import com.transfer.playlist.music.clients.spotify.dto.clientresponses.SpotifyCreatePlaylistResponse;
 import com.transfer.playlist.music.clients.spotify.exception.SpotifyAuthException;
 import com.transfer.playlist.music.clients.common.dto.PlaylistBasicDetails;
 import com.transfer.playlist.music.clients.common.dto.PlaylistSong;
 import com.transfer.playlist.music.clients.common.dto.UserPlaylistDTO;
-import com.transfer.playlist.music.clients.spotify.dto.ClientResponses.Artist;
-import com.transfer.playlist.music.clients.spotify.dto.ClientResponses.Playlists;
-import com.transfer.playlist.music.clients.spotify.dto.ClientResponses.Song;
-import com.transfer.playlist.music.clients.spotify.dto.ClientResponses.SongDetails;
-import com.transfer.playlist.music.clients.spotify.dto.ClientResponses.SpotifyCurrentUserDetailsResponse;
-import com.transfer.playlist.music.clients.spotify.dto.ClientResponses.SpotifyPlaylistDetailsApiResponse;
+import com.transfer.playlist.music.clients.spotify.dto.clientresponses.Artist;
+import com.transfer.playlist.music.clients.spotify.dto.clientresponses.Playlists;
+import com.transfer.playlist.music.clients.spotify.dto.clientresponses.Song;
+import com.transfer.playlist.music.clients.spotify.dto.clientresponses.SongDetails;
+import com.transfer.playlist.music.clients.spotify.dto.clientresponses.SpotifyCurrentUserDetailsResponse;
+import com.transfer.playlist.music.clients.spotify.dto.clientresponses.SpotifyPlaylistDetailsApiResponse;
 
 @Service
 public class SpotifyApiService {
@@ -45,9 +45,7 @@ public class SpotifyApiService {
             .build();
     }
 
-    public UserPlaylistDTO getUserPlaylists(
-        String accessToken
-    ) {
+    public UserPlaylistDTO getUserPlaylists(String accessToken) {
         SpotifyCurrentUserDetailsResponse currentUser = getCurrentUserDetails(accessToken);
 
         SpotifyPlaylistsApiResponse response = callSpotifyPlaylistsAPI(
@@ -64,7 +62,9 @@ public class SpotifyApiService {
                     removed++;
                     continue;
                 }
-                String imageURL = "playlist.images().getOrDefault(0).url()";
+                String imageURL = playlist.images() == null ?
+                    "":
+                    playlist.images().get(0).url();
                 List<PlaylistSong> songs = getAllSongsInPlaylist(playlist.id(), accessToken);
                 PlaylistBasicDetails pl = new PlaylistBasicDetails(
                     playlist.id(),

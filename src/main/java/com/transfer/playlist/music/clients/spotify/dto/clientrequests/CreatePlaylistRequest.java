@@ -1,4 +1,4 @@
-package com.transfer.playlist.music.clients.spotify.dto.ClientRequests;
+package com.transfer.playlist.music.clients.spotify.dto.clientrequests;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

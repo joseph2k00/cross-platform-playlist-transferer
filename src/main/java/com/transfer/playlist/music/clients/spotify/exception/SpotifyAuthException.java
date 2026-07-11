@@ -6,8 +6,8 @@ public class SpotifyAuthException extends RuntimeException {
 
     private final HttpStatusCode status;
 
-    public SpotifyAuthException(HttpStatusCode status) {
-        super("Authentication failed");
+    public SpotifyAuthException(String msg, HttpStatusCode status) {
+        super(msg);
         this.status = status;
     }
 

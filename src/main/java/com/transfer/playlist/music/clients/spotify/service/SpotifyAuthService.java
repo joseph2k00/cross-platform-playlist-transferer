@@ -7,8 +7,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
 
-import com.transfer.playlist.music.clients.spotify.dto.GetAccessTokenRequest;
-import com.transfer.playlist.music.clients.spotify.dto.GetAccessTokenResponse;
+import com.transfer.playlist.music.clients.spotify.dto.auth.GetAccessTokenRequest;
+import com.transfer.playlist.music.clients.spotify.dto.auth.GetAccessTokenResponse;
 import com.transfer.playlist.music.clients.spotify.exception.SpotifyAuthException;
 
 import jakarta.servlet.http.HttpSession;
@@ -18,7 +18,7 @@ public class SpotifyAuthService {
 
     private final RestClient restClient;
     private final static String SPOTIFY_ACCOUNT_BASE_URL = "https://accounts.spotify.com/api";
-    public final static String SPOTIFY_READ_ACCESS_TOKEN_SESSION_KEY = "spotify_read_access_token";
+    public final static String SPOTIFY_ACCESS_TOKEN_SESSION_KEY = "spotify_access_token";
     private final static String TOKEN_URI = "/token";
     
     private final String clientId;
@@ -54,10 +54,13 @@ public class SpotifyAuthService {
             .body(formData)
             .retrieve()
             .onStatus(status -> status.isError(), (req, res) -> {
-                throw new SpotifyAuthException(res.getStatusCode());
+                throw new SpotifyAuthException(res.getStatusText(), res.getStatusCode());
             })
             .body(GetAccessTokenResponse.class);
 
-        session.setAttribute(SPOTIFY_READ_ACCESS_TOKEN_SESSION_KEY, response.accessToken());
+        session.setAttribute(
+            SPOTIFY_ACCESS_TOKEN_SESSION_KEY,
+            response.accessToken()
+        );
     }
 }

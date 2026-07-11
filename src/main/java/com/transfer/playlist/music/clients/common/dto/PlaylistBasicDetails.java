@@ -1,4 +1,4 @@
-package com.transfer.playlist.music.clients.spotify.dto;
+package com.transfer.playlist.music.clients.common.dto;
 
 import java.util.List;
 
@@ -8,6 +8,4 @@ public record PlaylistBasicDetails(
     String desc,
     String img_url,
     List<PlaylistSong> songs
-) {
-
-}
+) {}

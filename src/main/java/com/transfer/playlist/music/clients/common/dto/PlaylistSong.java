@@ -1,4 +1,4 @@
-package com.transfer.playlist.music.clients.spotify.dto;
+package com.transfer.playlist.music.clients.common.dto;
 
 public record PlaylistSong(
     String name,

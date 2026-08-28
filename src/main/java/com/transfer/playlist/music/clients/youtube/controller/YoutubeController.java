@@ -60,4 +60,20 @@ public class YoutubeController {
 
         return apiService.getUserPlaylists(token);
     }
+
+    @PostMapping("/playlist/create")
+    public ResponseEntity<Map<String, String>> createPlaylist(
+        HttpSession session,
+        @Valid @RequestBody UserPlaylistDTO request
+    ) {
+        String token = (String) session.getAttribute(YoutubeApiService.YOUTUBE_ACCESS_TOKEN_SESSION_KEY);
+        if (token == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not connected to YouTube");
+        }
+        apiService.createPlaylistAndAddSongs(
+            token,
+            request
+        );
+        return ResponseEntity.ok(Map.of("status", "success"));
+    }
 }

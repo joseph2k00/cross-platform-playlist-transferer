@@ -22,6 +22,7 @@ import com.transfer.playlist.music.clients.spotify.dto.clientresponses.Song;
 import com.transfer.playlist.music.clients.spotify.dto.clientresponses.SongDetails;
 import com.transfer.playlist.music.clients.spotify.dto.clientresponses.SpotifyCurrentUserDetailsResponse;
 import com.transfer.playlist.music.clients.spotify.dto.clientresponses.SpotifyPlaylistDetailsApiResponse;
+import com.transfer.playlist.music.clients.spotify.dto.clientresponses.Track;
 
 @Service
 public class SpotifyApiService {
@@ -160,9 +161,10 @@ public class SpotifyApiService {
         List<String> uris = new ArrayList<>();
 
         for (PlaylistSong song: songs) {
-            uris.add(
-                getSongUri(song.name() + " " + song.artist(), accessToken)
-            );
+            String uri = getMatchingSongUri(song, accessToken);
+            if (uri != null) {
+                uris.add(uri);
+            }
         }
 
         AddItemsToPlaylistRequest requestBody = new AddItemsToPlaylistRequest(uris);
@@ -182,23 +184,30 @@ public class SpotifyApiService {
             .toBodilessEntity();
     }
 
-    public String getSongUri(String searchTerm, String accessToken) {
+    public String getMatchingSongUri(PlaylistSong song, String accessToken) {
+        String requestedName = song.name() == null ? "" : song.name();
+        String requestedArtist = song.artist() == null ? "" : song.artist();
 
         SpotifySearchTrackResponse response = restClient.get()
             .uri(uriBuilder -> uriBuilder
                     .path(SEARCH_API)
                     .queryParam("type", "track")
-                    .queryParam("q", searchTerm)
+                    .queryParam("q", requestedName + " " + requestedArtist)
                     .build())
             .headers(headers -> headers.setBearerAuth(accessToken))
             .retrieve()
             .body(SpotifySearchTrackResponse.class);
 
-        return response
-            .tracks()
-            .items()
-            .getFirst()
-            .uri();
+        if (response == null || response.tracks() == null || response.tracks().items() == null) {
+            return null;
+        }
+
+        for (Track track: response.tracks().items()) {
+            if (SpotifyMatchHelper.isMatch(track, requestedName, requestedArtist)) {
+                return track.uri();
+            }
+        }
+        return null;
     }
 
     private SpotifyPlaylistDetailsApiResponse callSpotifyPlaylistAPI(String playlistId, String accessToken) {

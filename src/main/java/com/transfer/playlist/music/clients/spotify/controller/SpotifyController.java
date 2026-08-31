@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.transfer.playlist.music.clients.common.dto.UserPlaylistDTO;
+import com.transfer.playlist.music.clients.spotify.dto.RedirectLinkResponse;
 import com.transfer.playlist.music.clients.spotify.dto.auth.GetAccessTokenRequest;
 import com.transfer.playlist.music.clients.spotify.dto.auth.GetAccessTokenResponse;
 import com.transfer.playlist.music.clients.spotify.service.SpotifyApiService;
@@ -33,6 +34,11 @@ public class SpotifyController {
     ) {
         this.authService = authService;
         this.apiService = apiService;
+    }
+
+    @GetMapping("/auth-link")
+    public RedirectLinkResponse generateRedirectLink() {
+        return authService.generateLink();
     }
 
     @PostMapping("/get-access-token")

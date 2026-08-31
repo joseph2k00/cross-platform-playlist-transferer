@@ -12,8 +12,6 @@ import com.transfer.playlist.music.clients.youtube.dto.RedirectLinkResponse;
 import com.transfer.playlist.music.clients.youtube.dto.auth.GetAccessTokenRequest;
 import com.transfer.playlist.music.clients.youtube.dto.auth.GetAccessTokenResponse;
 
-import jakarta.servlet.http.HttpSession;
-
 @Service
 public class AuthService {
 
@@ -51,7 +49,7 @@ public class AuthService {
         return new RedirectLinkResponse(link);
     }
 
-    public void getYoutubeAccessToken(GetAccessTokenRequest request, HttpSession session) {
+    public GetAccessTokenResponse getYoutubeAccessToken(GetAccessTokenRequest request) {
         String code = request.code();
 
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
@@ -68,9 +66,6 @@ public class AuthService {
             .retrieve()
             .body(GetAccessTokenResponse.class);
 
-        session.setAttribute(
-            YoutubeApiService.YOUTUBE_ACCESS_TOKEN_SESSION_KEY,
-            response.accessToken()
-        );
+        return response;
     }
 }

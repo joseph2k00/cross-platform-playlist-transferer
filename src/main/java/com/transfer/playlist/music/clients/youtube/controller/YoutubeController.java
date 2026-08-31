@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -14,10 +15,10 @@ import org.springframework.web.server.ResponseStatusException;
 import com.transfer.playlist.music.clients.common.dto.UserPlaylistDTO;
 import com.transfer.playlist.music.clients.youtube.dto.RedirectLinkResponse;
 import com.transfer.playlist.music.clients.youtube.dto.auth.GetAccessTokenRequest;
+import com.transfer.playlist.music.clients.youtube.dto.auth.GetAccessTokenResponse;
 import com.transfer.playlist.music.clients.youtube.service.AuthService;
 import com.transfer.playlist.music.clients.youtube.service.YoutubeApiService;
 
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 @RestController
@@ -41,19 +42,17 @@ public class YoutubeController {
     }
 
     @PostMapping("/get-access-token")
-    public ResponseEntity<Map<String, String>> getAccessToken(
-        @Valid @RequestBody GetAccessTokenRequest request,
-        HttpSession session
+    public GetAccessTokenResponse getAccessToken(
+        @Valid @RequestBody GetAccessTokenRequest request
     ) {
-        authService.getYoutubeAccessToken(request, session);
-        return ResponseEntity.ok(Map.of("status", "success"));
+        return authService.getYoutubeAccessToken(request);
     }
 
     @GetMapping("/playlists")
     public UserPlaylistDTO getPlaylists(
-        HttpSession session
+        @RequestHeader("Authorization") String authorization
     ) {
-        String token = (String) session.getAttribute(YoutubeApiService.YOUTUBE_ACCESS_TOKEN_SESSION_KEY);
+        String token = extractBearerToken(authorization);
         if (token == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not connected to YouTube");
         }
@@ -63,10 +62,10 @@ public class YoutubeController {
 
     @PostMapping("/playlist/create")
     public ResponseEntity<Map<String, String>> createPlaylist(
-        HttpSession session,
+        @RequestHeader("Authorization") String authorization,
         @Valid @RequestBody UserPlaylistDTO request
     ) {
-        String token = (String) session.getAttribute(YoutubeApiService.YOUTUBE_ACCESS_TOKEN_SESSION_KEY);
+        String token = extractBearerToken(authorization);
         if (token == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not connected to YouTube");
         }
@@ -75,5 +74,12 @@ public class YoutubeController {
             request
         );
         return ResponseEntity.ok(Map.of("status", "success"));
+    }
+
+    private String extractBearerToken(String authorization) {
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
+            return null;
+        }
+        return authorization.substring("Bearer ".length());
     }
 }

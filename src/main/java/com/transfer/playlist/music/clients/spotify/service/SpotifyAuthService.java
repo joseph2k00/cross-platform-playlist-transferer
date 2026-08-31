@@ -11,14 +11,11 @@ import com.transfer.playlist.music.clients.spotify.dto.auth.GetAccessTokenReques
 import com.transfer.playlist.music.clients.spotify.dto.auth.GetAccessTokenResponse;
 import com.transfer.playlist.music.clients.spotify.exception.SpotifyAuthException;
 
-import jakarta.servlet.http.HttpSession;
-
 @Service
 public class SpotifyAuthService {
 
     private final RestClient restClient;
     private final static String SPOTIFY_ACCOUNT_BASE_URL = "https://accounts.spotify.com/api";
-    public final static String SPOTIFY_ACCESS_TOKEN_SESSION_KEY = "spotify_access_token";
     private final static String TOKEN_URI = "/token";
     
     private final String clientId;
@@ -36,7 +33,7 @@ public class SpotifyAuthService {
         this.clientSecret = clientSecret;
     }
 
-    public void getSpotifyAccessToken(GetAccessTokenRequest request, HttpSession session) {
+    public GetAccessTokenResponse getSpotifyAccessToken(GetAccessTokenRequest request) {
         String code = request.code();
         
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
@@ -58,9 +55,6 @@ public class SpotifyAuthService {
             })
             .body(GetAccessTokenResponse.class);
 
-        session.setAttribute(
-            SPOTIFY_ACCESS_TOKEN_SESSION_KEY,
-            response.accessToken()
-        );
+        return response;
     }
 }

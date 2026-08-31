@@ -28,7 +28,6 @@ public class YoutubeApiService {
     private final static String PLAYLIST_ITEMS_URI = "/playlistItems";
     private final static String SEARCH_URI = "/search";
     private final static String SOURCE = "YouTube";
-    public final static String YOUTUBE_ACCESS_TOKEN_SESSION_KEY = "youtube_access_token";
 
     public YoutubeApiService(
         RestClient.Builder builder

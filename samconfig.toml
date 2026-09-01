@@ -1,0 +1,13 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "playlist-transferer"
+resolve_s3 = true
+s3_prefix = "playlist-transferer"
+region = "eu-west-1"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "SpotifyClientId=\"f33ffce6f89d445aade97a5dadad59d0\" SpotifyRedirectUri=\"https://cross-platform-playlist-transfer-ui.vercel.app/callback/spotify\" YoutubeClientId=\"597945953486-5p8e2bis7rt53bo0s65mi1eml5se87cl.apps.googleusercontent.com\" YoutubeRedirectUrls=\"https://cross-platform-playlist-transfer-ui.vercel.app/callback/youtube\""
+image_repositories = []
+
+[default.global.parameters]
+region = "eu-west-1"

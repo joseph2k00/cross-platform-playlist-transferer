@@ -1,0 +1,89 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Cross-platform playlist transferer (Spring Boot) on AWS Lambda
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 1024
+    Runtime: java25
+    Architectures:
+      - arm64
+    Tracing: Active
+    SnapStart:
+      ApplyOn: PublishedVersions
+
+Parameters:
+  # Optional overrides. If left empty, the values baked into application.properties
+  # are used (fine for a local/dev deploy). Pass real values for production via
+  # `--parameter-overrides`.
+  SpotifyClientId:
+    Type: String
+    Default: ''
+  SpotifyClientSecret:
+    Type: String
+    NoEcho: true
+    Default: ''
+  SpotifyRedirectUri:
+    Type: String
+    Default: ''
+  YoutubeClientId:
+    Type: String
+    Default: ''
+  YoutubeClientSecret:
+    Type: String
+    NoEcho: true
+    Default: ''
+  YoutubeRedirectUrls:
+    Type: String
+    Default: ''
+
+Conditions:
+  HasSpotifyClientId: !Not [!Equals [!Ref SpotifyClientId, '']]
+  HasSpotifyClientSecret: !Not [!Equals [!Ref SpotifyClientSecret, '']]
+  HasSpotifyRedirectUri: !Not [!Equals [!Ref SpotifyRedirectUri, '']]
+  HasYoutubeClientId: !Not [!Equals [!Ref YoutubeClientId, '']]
+  HasYoutubeClientSecret: !Not [!Equals [!Ref YoutubeClientSecret, '']]
+  HasYoutubeRedirectUrls: !Not [!Equals [!Ref YoutubeRedirectUrls, '']]
+
+Resources:
+  PlaylistTransferApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+
+  PlaylistTransferFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: com.transfer.playlist.music.StreamLambdaHandler::handleRequest
+      AutoPublishAlias: live
+      MemorySize: 1024
+      Timeout: 30
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            RestApiId: !Ref PlaylistTransferApi
+            Path: /{proxy+}
+            Method: ANY
+      Environment:
+        Variables:
+          SPOTIFY_CLIENT_ID: !If [HasSpotifyClientId, !Ref SpotifyClientId, !Ref 'AWS::NoValue']
+          SPOTIFY_CLIENT_SECRET: !If [HasSpotifyClientSecret, !Ref SpotifyClientSecret, !Ref 'AWS::NoValue']
+          SPOTIFY_REDIRECT_URI: !If [HasSpotifyRedirectUri, !Ref SpotifyRedirectUri, !Ref 'AWS::NoValue']
+          YOUTUBE_CLIENT_ID: !If [HasYoutubeClientId, !Ref YoutubeClientId, !Ref 'AWS::NoValue']
+          YOUTUBE_CLIENT_SECRET: !If [HasYoutubeClientSecret, !Ref YoutubeClientSecret, !Ref 'AWS::NoValue']
+          YOUTUBE_REDIRECT_URLS: !If [HasYoutubeRedirectUrls, !Ref YoutubeRedirectUrls, !Ref 'AWS::NoValue']
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL (append path, e.g. /spotify/auth-link)
+    Value: !Sub "https://${PlaylistTransferApi}.execute-api.${AWS::Region}.amazonaws.com/prod/"
+  FunctionName:
+    Description: Lambda function name
+    Value: !Ref PlaylistTransferFunction
